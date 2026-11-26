@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Лента — Наш колледж</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bar" id="bar"></div>
+  <div class="wrap">
+
+    <div class="card">
+      <div class="row">
+        <span id="myAva"></span>
+        <div>
+          <h3 id="hello"></h3>
+          <button class="ghost" onclick="toggleEdit()">Изменить аватарку</button>
+        </div>
+      </div>
+      <div id="edit" class="hidden">
+        <div id="emojis" class="picker"></div>
+        <div id="colors" class="picker"></div>
+        <button onclick="saveAvatar()">Сохранить</button>
+      </div>
+    </div>
+
+    <div id="posts"></div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    const me = requireLogin();
+    renderBar("feed");
+    let emoji = me.emoji, color = me.color;
+
+    function drawMe() {
+      const u = currentUser();
+      document.getElementById("myAva").innerHTML = avatarHTML(u, true);
+      document.getElementById("hello").textContent = "Привет, " + u.name + "!";
+    }
+
+    function toggleEdit() { document.getElementById("edit").classList.toggle("hidden"); drawPickers(); }
+
+    function drawPickers() {
+      document.getElementById("emojis").innerHTML = EMOJIS.map(e =>
+        `<button class="${e === emoji ? "sel" : ""}" onclick="emoji='${e}';drawPickers()">${e}</button>`).join("");
+      document.getElementById("colors").innerHTML = COLORS.map(c =>
+        `<button class="swatch ${c === color ? "sel" : ""}" style="background:${c}" onclick="color='${c}';drawPickers()" aria-label="цвет"></button>`).join("");
+    }
+
+    function saveAvatar() {
+      const users = getUsers();
+      users[me.name].emoji = emoji;
+      users[me.name].color = color;
+      saveUsers(users);
+      location.reload();
+    }
+
+    function drawPosts() {
+      const likes = getLikes();
+      const comments = getComments();
+      document.getElementById("posts").innerHTML = POSTS.map(p => {
+        const list = likes[p.id] || [];
+        const liked = list.includes(me.name);
+        const count = comments.filter(c => c.postId === p.id).length;
+        return `
+          <div class="card">
+            <h2>${esc(p.title)}</h2>
+            <p>${esc(p.text)}</p>
+            <div class="row">
+              <button class="like ${liked ? "on" : ""}" onclick="like(${p.id})">${liked ? "❤️" : "🤍"} ${list.length}</button>
+              <a href="comments.html?post=${p.id}">💬 Комментарии (${count})</a>
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    function like(id) { toggleLike(id, me.name); drawPosts(); }
+
+    drawMe();
+    drawPosts();
+  </script>
+</body>
+</html>

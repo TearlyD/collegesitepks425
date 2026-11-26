@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Комментарии — Наш колледж</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bar" id="bar"></div>
+  <div class="wrap">
+
+    <div class="card">
+      <h2>Комментарии</h2>
+      <select id="postSel" onchange="current = +this.value; draw()"></select>
+      <p id="postText" class="meta"></p>
+    </div>
+
+    <div class="card">
+      <div id="list"></div>
+    </div>
+
+    <div class="card">
+      <textarea id="text" rows="3" maxlength="300" placeholder="Напишите комментарий..."></textarea>
+      <p id="err" class="err"></p>
+      <button onclick="addComment()">Отправить</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    const me = requireLogin();
+    renderBar("comments");
+
+    // Пост выбирается из ссылки ?post=2 или по умолчанию первый
+    const fromUrl = +new URLSearchParams(location.search).get("post");
+    let current = POSTS.some(p => p.id === fromUrl) ? fromUrl : POSTS[0].id;
+
+    document.getElementById("postSel").innerHTML = POSTS.map(p =>
+      `<option value="${p.id}">${esc(p.title)}</option>`).join("");
+
+    function draw() {
+      document.getElementById("postSel").value = current;
+      document.getElementById("postText").textContent = POSTS.find(p => p.id === current).text;
+
+      const users = getUsers();
+      const items = getComments().filter(c => c.postId === current);
+      document.getElementById("list").innerHTML = items.length
+        ? items.map(c => `
+            <div class="comment">
+              ${avatarHTML(users[c.user])}
+              <div>
+                <b>${esc(c.user)}</b> <span class="meta">${esc(c.time)}</span>
+                <p>${esc(c.text)}</p>
+                ${c.user === me.name ? `<a href="#" onclick="del(${c.id});return false">Удалить</a>` : ""}
+              </div>
+            </div>`).join("")
+        : `<p class="meta">Пока нет комментариев. Напишите первый.</p>`;
+    }
+
+    function addComment() {
+      const box = document.getElementById("text");
+      const text = box.value.trim();
+      if (!text) { document.getElementById("err").textContent = "Комментарий не может быть пустым."; return; }
+      document.getElementById("err").textContent = "";
+      const all = getComments();
+      all.push({ id: Date.now(), postId: current, user: me.name, text, time: new Date().toLocaleString("ru-RU") });
+      saveComments(all);
+      box.value = "";
+      draw();
+    }
+
+    function del(id) { saveComments(getComments().filter(c => c.id !== id)); draw(); }
+
+    draw();
+  </script>
+</body>
+</html>

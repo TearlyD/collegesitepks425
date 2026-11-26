@@ -1,0 +1,82 @@
+:root {
+  --bg: #f3f1ec;
+  --ink: #1d2433;
+  --card: #ffffff;
+  --accent: #1f4fd8;
+  --muted: #6b7280;
+  --line: #e2dfd7;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+}
+a { color: var(--accent); }
+.wrap { max-width: 680px; margin: 0 auto; padding: 16px; }
+
+/* top bar */
+.bar {
+  background: var(--ink);
+  color: #fff;
+  position: sticky; top: 0; z-index: 5;
+}
+.bar .wrap { display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
+.bar b { font-size: 18px; margin-right: auto; }
+.bar a { color: #cfd6ea; text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+.bar a.on, .bar a:hover { background: #ffffff22; color: #fff; }
+
+/* avatar */
+.ava {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: inline-grid; place-items: center;
+  font-size: 22px; flex: none;
+  border: 2px solid #fff;
+}
+.ava.big { width: 72px; height: 72px; font-size: 40px; }
+
+/* cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 14px 0;
+}
+.card h2, .card h3 { margin: 0 0 6px; }
+.meta { color: var(--muted); font-size: 13px; }
+
+/* forms */
+input, textarea, select {
+  width: 100%; padding: 10px; margin: 6px 0;
+  border: 1px solid var(--line); border-radius: 8px;
+  font: inherit; background: #fff;
+}
+button {
+  font: inherit; cursor: pointer;
+  border: 0; border-radius: 8px;
+  padding: 9px 14px;
+  background: var(--accent); color: #fff;
+}
+button.ghost { background: #eceae3; color: var(--ink); }
+button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid #f2b705; outline-offset: 2px;
+}
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.like.on { background: #d6336c; }
+.err { color: #c0392b; font-size: 14px; min-height: 20px; }
+
+/* avatar picker */
+.picker { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.picker button { background: #eceae3; font-size: 20px; padding: 6px 10px; }
+.picker button.sel { outline: 3px solid var(--accent); }
+.swatch { width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); }
+.swatch.sel { box-shadow: 0 0 0 3px var(--accent); }
+
+/* comments */
+.comment { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.comment:first-child { border-top: 0; }
+.comment p { margin: 2px 0; }
+.hidden { display: none; }

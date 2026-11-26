@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход — Наш колледж</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrap">
+    <h1>🎓 Наша сеть колледжа</h1>
+    <p class="meta">Новости, лайки и обсуждения для студентов.</p>
+
+    <div class="card">
+      <div class="row">
+        <button id="tabIn" onclick="mode('in')">Вход</button>
+        <button id="tabUp" class="ghost" onclick="mode('up')">Регистрация</button>
+      </div>
+
+      <input id="name" placeholder="Имя пользователя" autocomplete="username">
+      <input id="pass" type="password" placeholder="Пароль" autocomplete="current-password">
+
+      <div id="custom" class="hidden">
+        <p class="meta">Выберите аватарку:</p>
+        <div id="emojis" class="picker"></div>
+        <div id="colors" class="picker"></div>
+        <div class="row">Предпросмотр: <span id="prev"></span></div>
+      </div>
+
+      <p id="err" class="err"></p>
+      <button id="go" onclick="submitForm()">Войти</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    let isUp = false, emoji = EMOJIS[0], color = COLORS[0];
+
+    function mode(m) {
+      isUp = m === "up";
+      document.getElementById("custom").classList.toggle("hidden", !isUp);
+      document.getElementById("go").textContent = isUp ? "Создать аккаунт" : "Войти";
+      document.getElementById("tabIn").className = isUp ? "ghost" : "";
+      document.getElementById("tabUp").className = isUp ? "" : "ghost";
+      document.getElementById("err").textContent = "";
+    }
+
+    function drawPickers() {
+      document.getElementById("emojis").innerHTML = EMOJIS.map(e =>
+        `<button class="${e === emoji ? "sel" : ""}" onclick="emoji='${e}';drawPickers()">${e}</button>`).join("");
+      document.getElementById("colors").innerHTML = COLORS.map(c =>
+        `<button class="swatch ${c === color ? "sel" : ""}" style="background:${c}" onclick="color='${c}';drawPickers()" aria-label="цвет"></button>`).join("");
+      document.getElementById("prev").innerHTML = avatarHTML({ emoji, color }, true);
+    }
+
+    function submitForm() {
+      const name = document.getElementById("name").value.trim();
+      const pass = document.getElementById("pass").value;
+      const err = document.getElementById("err");
+      const users = getUsers();
+      if (name.length < 2 || pass.length < 4) { err.textContent = "Имя от 2 символов, пароль от 4."; return; }
+
+      if (isUp) {
+        if (users[name]) { err.textContent = "Такое имя уже занято."; return; }
+        users[name] = { pass, emoji, color };
+        saveUsers(users);
+      } else if (!users[name] || users[name].pass !== pass) {
+        err.textContent = "Неверное имя или пароль.";
+        return;
+      }
+      store.set("session", name);
+      location.href = "feed.html";
+    }
+
+    if (currentUser() && currentUser().pass) location.href = "feed.html";
+    drawPickers();
+  </script>
+</body>
+</html>
